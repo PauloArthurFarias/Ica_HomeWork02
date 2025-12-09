@@ -555,4 +555,50 @@ rmse_pcr_test, r2_pcr_test
 
 
 # %% [markdown]
-#
+# # TASK 04
+
+# %%
+from sklearn.neural_network import MLPRegressor
+from sklearn.metrics import mean_squared_error, r2_score
+
+
+# Configuração e treinamento do modelo (MLP)
+# hidden_layer_sizes --> define a arquitetura, no caso, significa duas camadas ocultas.
+# max_iter --> número máximo de épocas.
+# random_state --> reprodutibilidade.
+nn_model = MLPRegressor(hidden_layer_sizes=(100, 50),
+                        activation='relu',
+                        solver='adam',
+                        alpha=0.0001, # Regularização L2
+                        learning_rate_init=0.001,
+                        max_iter=1000,
+                        random_state=42,
+                        early_stopping=True) # Para evitar overfitting
+
+print("Treinando a Rede Neural: ")
+
+nn_model.fit(solTrainX_final, solTrainY['Solubility'])
+
+# Predição no Conjunto de Teste
+
+y_pred_nn = nn_model.predict(solTestX_final)
+
+# Cálculo das métricas
+rmse_nn = np.sqrt(mean_squared_error(solTestY['Solubility'], y_pred_nn))
+r2_nn = r2_score(solTestY['Solubility'], y_pred_nn)
+
+print("-" * 30)
+print(f"Resultados da Rede Neural:")
+print(f"RMSE: {rmse_nn:.4f}")
+print(f"R²:   {r2_nn:.4f}")
+print("-" * 30)
+
+#Visualizando:
+plt.figure(figsize=(8, 6))
+sns.scatterplot(x=solTestY['Solubility'], y=y_pred_nn, alpha=0.6)
+plt.plot([solTestY.min(), solTestY.max()], [solTestY.min(), solTestY.max()], 'r--', lw=2) # Linha ideal
+plt.xlabel("Valor Real (Solubility)")
+plt.ylabel("Valor Predito (NN)")
+plt.title(f"Rede Neural: Real vs Predito (R² = {r2_nn:.3f})")
+plt.grid(True)
+plt.show()
